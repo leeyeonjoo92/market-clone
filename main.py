@@ -10,6 +10,21 @@ con = sqlite3.connect("db.db", check_same_thread=False)
 # 특정 인서트 하거나 셀렉트 할때 사용
 cur = con.cursor()
 
+# 데이터 배포시 자동으로 테이블을 만들어줌
+# 서버가 내려갈때마다 새로 만드는 오류가 있음
+# IF NOT EXISTS -> 테이블이 없을때만 생성해주는 조건문
+cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS items (
+							id INTEGER PRIMARY KEY,
+							title TEXT NOT NULL,
+							image BLOB,
+							price INTEGER NOT NULL,
+							description TEXT,
+							place TEXT NOT NULL,
+							insertAt INTEGER NOT NULL
+						);
+            """)
+
 app = FastAPI()
 
 # -----------------------------------
