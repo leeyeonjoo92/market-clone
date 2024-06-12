@@ -92,7 +92,29 @@ async def get_image(item_id):
                             SELECT image from items WHERE id={item_id}
                             """).fetchone()[0]
   # 16진법으로 된것을 2진법으로 바꿔서 response하곘다
-  return Response(content=bytes.fromhex(image_bytes))
+  # media_type='image/*' -> 모든 이미지타입 (배포시 파이썬 버전문제 오류 해결)
+  return Response(content=bytes.fromhex(image_bytes), media_type='image/*')
+
+# -----------------------------------
+# 	회원가입
+# -----------------------------------
+@app.post("/signup")
+def signup(id:Annotated[str,Form()],
+					password:Annotated[str,Form()],
+					name:Annotated[str,Form()],
+					email:Annotated[str,Form()]):
+  # DB에 저장
+  cur.execute(f"""
+              INSERT INTO users(id,name,email,password)
+              VALUES ('{id}', '{name}', '{email}', '{password}')
+              """)
+  # input password 타입으로 비밀번호를 가렸어도 터미널에서는 다 볼수있음
+  # print 주석처리 안하면 오류남
+  # print(id, password)
+  con.commit()
+  return "200"
+# 200이라는 응답이 떨어졌기 때문에 비밀번호를 저장하시겠습니까? 알림창 뜸
+
 
 # 이 아래에 작성하면 위에서 처리되고 아래 있는 코드는 실행안됨
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
